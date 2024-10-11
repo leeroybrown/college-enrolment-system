@@ -13,27 +13,32 @@ require_relative 'support/student'
 # LOG.level = Logger.const_get('DEBUG')
 def main
   running = true
-  while running
-    # we run the program - we can set running to false to exit the program
-    puts 'add - add a new student'
-    puts 'exit - exit the program'
-    puts 'Please enter an option: '
-    user_response = gets.chomp # 'exit' command will set running to false and exit the program
-    case user_response
-    when 'add'
-      # ask user for details...
-      puts 'Enter first name: '
-      first_name = gets.chomp
-      puts 'Enter last name: '
-      last_name = gets.chomp
-      student = Student.new(first_name: first_name, last_name: last_name)
-      # generate student_id
-      student.generate_unique_student_id
-    when 'exit'
-      running = false
-    else
-      raise UnknownOptionError, 'The user has entered an invalid option'
+  begin
+    while running
+      # we run the program - we can set running to false to exit the program
+      puts 'add - add a new student'
+      puts 'exit - exit the program'
+      print 'Please enter an option: '
+      user_response = gets.chomp # 'exit' command will set running to false and exit the program
+      case user_response
+      when 'add'
+        # ask user for details...
+        puts 'Enter first name: '
+        first_name = gets.chomp
+        puts 'Enter last name: '
+        last_name = gets.chomp
+        student = Student.new(first_name: first_name, last_name: last_name)
+        # generate student_id
+        student.generate_unique_student_id
+      when 'exit'
+        running = false
+      else
+        raise UnknownOptionError, "The user has entered an invalid option: #{user_response}"
+      end
     end
+  rescue UnknownOptionError => error
+    puts "Unknown option: #{error.message}"
+    retry
   end
 end
 
