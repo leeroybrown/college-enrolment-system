@@ -14,25 +14,81 @@ class Student
     @student_id = nil
     @first_name = first_name
     @last_name = last_name
-    @course_identifier = nil
+    @course_identifier = []
     @errors = {}
   end
 
+  def add_student
+    check_records_file_exists
+    generate_unique_student_id
+    add_course
+    student_to_add = convert_instance_variables_to_strings
+    confirm = FileHelper.write_file(file_path: Constants::RECORDS_FILE_PATH, student: student_to_add)
+    courses = lookup_course(course_identifier: @course_identifier)
+    if confirm
+      puts "New student: #{@first_name.capitalize} #{@last_name.capitalize} has been added and enrolled onto #{courses.join(', ')}"
+    end
+  end
+
+  private
+
+  def lookup_course(course_identifier:)
+    return_array = []
+    courses = FileHelper.read_file(file_path: Constants::COURSES_FILE_PATH)
+    courses.each do |course|
+      course_identifier.find do |identifier|
+        if course[:identifier] == identifier.to_s.upcase
+          return_array << course[:_course].strip
+          next
+        end
+      end
+    end
+    return_array
+  end
+
+  def add_course
+    # get list of available courses
+    courses = FileHelper.read_file(file_path: Constants::COURSES_FILE_PATH)
+
+    begin
+      running = true
+      while running
+        puts 'Enter course identifier:'
+        course_identifier = gets.chomp
+        unless courses[:identifier].include?(course_identifier)
+          raise NoSuchCourseError, "Course not available: #{course_identifier}"
+        end
+        @course_identifier << SimpleSymbolize.symbolize(course_identifier)
+        puts 'Do you want to enrol on another course? (y/n)'
+        user_response = gets.chomp.downcase
+        unless %w[y n].include?(user_response)
+          raise InvalidResponseError, "Invalid response: #{user_response}. Please try again"
+        end
+        running = false if user_response == 'n'
+      end
+    rescue InvalidResponseError, NoSuchCourseError => e
+      puts e.message
+      retry
+    end
+  end
+
   def generate_unique_student_id
+    retry_count = 0
     begin
       # generate a student_id
       @student_id = generate_student_id
       # check if this student_id already exists
       student_records = FileHelper.read_file(file_path: Constants::RECORDS_FILE_PATH)
-      student_records.each do |student_record|
-        raise DuplicateStudentIdError if @student_id == student_record[:student_id]
-      end
+      raise DuplicateStudentIdError if student_records[:student_id].include?(@student_id)
     rescue DuplicateStudentIdError
-      retry
+      if retry_count <= 10
+        retry_count += 1
+        retry
+      else
+        @errors[:duplicate_student_id] = :duplicate_student_id
+      end
     end
   end
-
-  private
 
   def check_records_file_exists
     begin
@@ -41,7 +97,7 @@ class Student
     rescue FileNotFoundError
       # if the file does not exist then we want to create it with headers
       puts 'File does not exist, creating it...'
-      student_records = FileHelper.create_file(file_path: './course-designations/records.csv')
+      student_records = FileHelper.create_file(file_path: Constants::RECORDS_FILE_PAT)
     end
     student_records
   end

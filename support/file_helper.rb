@@ -10,7 +10,7 @@ module FileHelper
   end
 
   def self.write_file(file_path:, student:)
-    CSV.open(file_path, 'w', write_headers: true, headers: Constants::OUTPUT_HEADERS) do |line|
+    CSV.open(file_path, 'a') do |line|
       line << student
     end
   end
