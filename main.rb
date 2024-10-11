@@ -6,11 +6,6 @@ require 'csv'
 require_relative 'support/errors'
 require_relative 'support/student'
 
-# config = DVLA::Herodotus.config do |configuration|
-#   configuration.display_pid = true
-# end
-# LOG = DVLA::Herodotus.logger('College Enrolment System', config:)
-# LOG.level = Logger.const_get('DEBUG')
 def main
   running = true
   begin
@@ -19,25 +14,25 @@ def main
       puts 'add - add a new student'
       puts 'exit - exit the program'
       print 'Please enter an option: '
-      user_response = gets.chomp # 'exit' command will set running to false and exit the program
+      user_response = gets.chomp.downcase # 'exit' command will set running to false and exit the program
       case user_response
       when 'add'
         # ask user for details...
         puts 'Enter first name: '
-        first_name = gets.chomp
+        first_name = gets.chomp.capitalize
         puts 'Enter last name: '
-        last_name = gets.chomp
+        last_name = gets.chomp.capitalize
         student = Student.new(first_name: first_name, last_name: last_name)
-        # generate student_id
-        student.generate_unique_student_id
+
+        student.add_student
       when 'exit'
         running = false
       else
-        raise UnknownOptionError, "The user has entered an invalid option: #{user_response}"
+        raise UnknownOptionError, "Invalid option entered: #{user_response}. Please select a valid option below...\n\n"
       end
     end
-  rescue UnknownOptionError => error
-    puts "Unknown option: #{error.message}"
+  rescue UnknownOptionError => e
+    puts e.message
     retry
   end
 end
