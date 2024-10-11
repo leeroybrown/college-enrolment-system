@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module StudentHelpers
-  def check_records_file_exists()
+module StudentHelper
+  def check_records_file_exists
     begin
       # Open the records.csv file and check to see if this student_id already exists
       student_records = FileHelper.read_file(file_path: Constants::RECORDS_FILE_PATH)

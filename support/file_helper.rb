@@ -14,4 +14,10 @@ module FileHelper
       line << student
     end
   end
+
+  def self.create_file(file_path:)
+    CSV.open(file_path, 'w') do |header|
+      header << Constants::OUTPUT_HEADERS
+    end
+  end
 end
