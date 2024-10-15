@@ -18,9 +18,9 @@ def main
       case user_response
       when 'add'
         # ask user for details...
-        puts 'Enter first name: '
+        print 'Enter first name: '
         first_name = gets.chomp.capitalize
-        puts 'Enter last name: '
+        print 'Enter last name: '
         last_name = gets.chomp.capitalize
         student = Student.new(first_name: first_name, last_name: last_name)
 

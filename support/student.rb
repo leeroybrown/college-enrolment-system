@@ -49,17 +49,16 @@ class Student
   def add_course
     # get list of available courses
     courses = FileHelper.read_file(file_path: Constants::COURSES_FILE_PATH)
-
     begin
       running = true
       while running
-        puts 'Enter course identifier:'
+        print 'Enter course identifier: '
         course_identifier = gets.chomp
         unless courses[:identifier].include?(course_identifier)
           raise NoSuchCourseError, "Course not available: #{course_identifier}"
         end
         @course_identifier << SimpleSymbolize.symbolize(course_identifier)
-        puts 'Do you want to enrol on another course? (y/n)'
+        print 'Do you want to enrol on another course? (y/n): '
         user_response = gets.chomp.downcase
         unless %w[y n].include?(user_response)
           raise InvalidResponseError, "Invalid response: #{user_response}. Please try again"
@@ -75,13 +74,11 @@ class Student
   def generate_unique_student_id
     retry_count = 0
     begin
-      # generate a student_id
       @student_id = generate_student_id
-      # check if this student_id already exists
       student_records = FileHelper.read_file(file_path: Constants::RECORDS_FILE_PATH)
       raise DuplicateStudentIdError if student_records[:student_id].include?(@student_id)
     rescue DuplicateStudentIdError
-      if retry_count <= 10
+      if retry_count <= Constants::RETRY_COUNT
         retry_count += 1
         retry
       else
@@ -97,7 +94,7 @@ class Student
     rescue FileNotFoundError
       # if the file does not exist then we want to create it with headers
       puts 'File does not exist, creating it...'
-      student_records = FileHelper.create_file(file_path: Constants::RECORDS_FILE_PAT)
+      student_records = FileHelper.create_file(file_path: Constants::RECORDS_FILE_PATH)
     end
     student_records
   end

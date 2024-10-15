@@ -3,4 +3,5 @@ module Constants
   OUTPUT_HEADERS = %w[student_id first_name last_name course_identifier errors].freeze
   RECORDS_FILE_PATH = './course-designations/records.csv'.freeze
   COURSES_FILE_PATH = './course-designations/course-designations.csv'.freeze
+  RETRY_COUNT = 3
 end
